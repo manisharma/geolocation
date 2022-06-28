@@ -1,0 +1,1 @@
+{"buildTargets":["build-n-tag","create-network","create-postgres","create-postgres-explorer","down","help","ingest","push","serve","test","up"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

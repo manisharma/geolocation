@@ -1,0 +1,58 @@
+version: '3.2'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: geolocation_postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - 5432:5432
+    networks:
+      - geolocation_network
+
+  geolocation_app_ingest:
+    container_name: geolocation_app_ingest
+    build:
+      context: .
+      dockerfile: Dockerfile.ingest
+    restart: on-failure
+    volumes:
+      - ${HOME}/geolocation/data_dump.csv:/root/data_dump.csv
+    depends_on:
+      - postgres
+    networks:
+      - geolocation_network
+
+  geolocation_app_serve:
+    container_name: geolocation_app_serve
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    ports:
+      - 8080:8080
+    restart: on-failure
+    depends_on:
+      - postgres
+    networks:
+      - geolocation_network
+
+  postgres_explorer:
+    image: dpage/pgadmin4
+    container_name: postgres_explorer
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_EXPLORER_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_EXPLORER_PASSWORD}
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    networks:
+      - geolocation_network
+    restart: unless-stopped
+
+networks:
+  geolocation_network:
+    driver: bridge
